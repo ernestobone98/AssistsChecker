@@ -1,19 +1,23 @@
 import os
 from tabula import read_pdf
+from tabula import read_pdf_with_template
 from pdf2image import convert_from_path
 from PIL import Image, ImageEnhance
 import numpy as np
 import pandas as pd
 
 current_dir = os.getcwd()
+sep = os.path.sep
 
-# OCR improvement - Image processing
-def preprocessing(pdf):
+# OCR improvement - Image processing (Only works on Windows)
+def preprocessing(file):
 
-    # converting pdf to image
-    image = convert_from_path(pdf, 500, poppler_path=r'C:\Program Files\poppler-22.11.0\Library\bin')[0]
+    if os.path.splitext(file)[1] == '.pdf':
+        # converting pdf to image
+        image = convert_from_path(file, 500, poppler_path=r'C:\Program Files\poppler-22.11.0\Library\bin')[0]
     #newimg = pages.resize((pages.size[0]*2, pages.size[1]*2), Image.ANTIALIAS) didn't work
-
+    else:
+        image = Image.open(file)
     # Converting image to grayscale
     image = image.convert('L')
 
@@ -30,25 +34,31 @@ def preprocessing(pdf):
     image = enhancer.enhance(0.5)
 
     # A4 format
-    image = image.resize((595,842), Image.ANTIALIAS)
+    # image = image.resize((595,842), Image.ANTIALIAS)
+
+    # higher brightness on dark zones of the image
+    enhancer = ImageEnhance.Brightness(image)
+    image = enhancer.enhance(1.5)
 
     # save the image as pdf
     image.save(f'{current_dir}\\Models\\trated.pdf', 'PDF')
     
 
 
-# preprocessing(f'{current_dir}\\..\\Models\\fdp3.pdf')
+# preprocessing(f'{current_dir}\\Models\\fdp3.pdf')
 
 # Actually working before preprocessing 
 
-df = read_pdf(f'{current_dir}\\Models\\fdp3.pdf', pages=1, encoding='utf-8', multiple_tables=False)
+df = read_pdf(f'{current_dir}{sep}Models{sep}fdp3.pdf', pages="all", encoding='utf-8', multiple_tables=False)
+# df = read_pdf_with_template(f'{current_dir}{sep}Models{sep}fdp4.pdf', f'{current_dir}{sep}Models{sep}fdp3.tabula-template.json', encoding='utf-8')
 print("Liste des etudiants \n")
 
-df[0]["Emargement"] = df[0]["Emargement"].replace(r'\D+', 'present', regex=True)
+df[0]["Emargement"] = df[0]["Emargement"].replace(r'.+', 'present', regex=True)
 df[0]["Emargement"] = df[0]["Emargement"].replace(np.nan, 'absent', regex=True)
-df[0] = df[0].drop(columns=['Prénom'])
-# change df[0][2] name to 'Prenom'
-df[0]["Unnamed: 2"].rename('Prenom')
+# df[0] = df[0].drop(columns=['Prénom'])
+# df[0]["Unnamed: 2"].rename('Prenom')
 
 print(df[0])
 
+# df[0].to_csv(f'{current_dir}{sep}Models{sep}test.csv', index=False)
+# df[0].to_json(f'{current_dir}{sep}Models{sep}test.json', orient='records')
