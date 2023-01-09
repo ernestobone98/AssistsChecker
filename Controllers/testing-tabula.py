@@ -49,16 +49,22 @@ def preprocessing(file):
 
 # Actually working before preprocessing 
 
-df = read_pdf(f'{current_dir}{sep}Models{sep}fdp3.pdf', pages="all", encoding='utf-8', multiple_tables=False)
-# df = read_pdf_with_template(f'{current_dir}{sep}Models{sep}fdp4.pdf', f'{current_dir}{sep}Models{sep}fdp3.tabula-template.json', encoding='utf-8')
-print("Liste des etudiants \n")
+#  ------------- Main function Defition ----------------
 
-df[0]["Emargement"] = df[0]["Emargement"].replace(r'.+', 'present', regex=True)
-df[0]["Emargement"] = df[0]["Emargement"].replace(np.nan, 'absent', regex=True)
-# df[0] = df[0].drop(columns=['Prénom'])
-# df[0]["Unnamed: 2"].rename('Prenom')
+def check_presence(file, json_file_name):
 
-print(df[0])
+    df = read_pdf(f'{current_dir}{sep}Models{sep}{file}', pages="all", encoding='utf-8', multiple_tables=False)
+    # df = read_pdf_with_template(f'{current_dir}{sep}Models{sep}fdp4.pdf', f'{current_dir}{sep}Models{sep}fdp3.tabula-template.json', encoding='utf-8')
+    print("Liste des etudiants \n")
 
-# df[0].to_csv(f'{current_dir}{sep}Models{sep}test.csv', index=False)
-# df[0].to_json(f'{current_dir}{sep}Models{sep}test.json', orient='records')
+    df[0]["Emargement"] = df[0]["Emargement"].replace(r'.+', 'present', regex=True)
+    df[0]["Emargement"] = df[0]["Emargement"].replace(np.nan, 'absent', regex=True)
+    df[0] = df[0].drop(columns=['Prénom'])
+    df[0].rename(columns={df[0].columns[0]: 'Civilité', df[0].columns[1]: 'Nom patronymique', df[0].columns[2]: 'Prénom', df[0].columns[3]: 'Émargement'}, inplace=True)
+
+    print(df[0])
+    # df[0].to_csv(f'{current_dir}{sep}Models{sep}test.csv', index=False)
+    df[0].to_json(f'{current_dir}{sep}Models{sep}{json_file_name}.json', orient='records')
+
+# testing function
+check_presence('fdp3.pdf', "test")
