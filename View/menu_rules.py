@@ -1,11 +1,9 @@
 # coding: utf-8
-import tkinter
 import os
+import tkinter
 from tkinter import *
-from tkinter.filedialog import *
 from tkinter import ttk
-
-from platform import system
+from tkinter.filedialog import askopenfilename
 
 current_dir = os.getcwd()
 sep = os.path.sep
@@ -29,12 +27,17 @@ icone_pdf = tkinter.PhotoImage(file=CHEMIN_ICONE_PDF ).subsample(7, 7)
 icone_croix = tkinter.PhotoImage(file=CHEMIN_ICONE_CROIX )#idem
 
 
-#
-#
-#FONCTION DE GESTION DE L'INTERFACE
-#
-#
+def analyserFichiers():
+    """
+    Fonction qui lance l'analyse de chaque fichiers dans la liste d'attente
+    """
+    print(lst_fichiers)
+
+
 def apparaitre_aide(event):
+    """
+    Faire appaaitre l'aide dans la fenetre
+    """
     label_aide=event.widget
 
     label_aide.winfo_children()[0].pack(side = LEFT)
@@ -88,7 +91,6 @@ def click_souris_sur_image(event):
     for chemin in lst_fichiers :
         ajouter_un_label(nom_fichier(chemin),cpt)
         cpt += 1
-
 def passage_souris_sur_frame(event):
     """
     Indications au passage de la souris sur une image
@@ -103,7 +105,7 @@ def passage_souris_sur_frame(event):
     image_label_suppression.bind("<Button-1>", click_souris_sur_image)
 
 
-def ajouter_un_label(nom, index_nom) :
+def ajouter_un_label(nom, index_nom, labe_vide, frame_depos) :
     #TODO si aucun fichier replacer label vide
     """
     Afficher le nom d'un fichier et l'iconne de pdf à l'écran
@@ -147,8 +149,7 @@ def nom_fichier(chemin):
     #separateur = "\\" if system() == "Windows" else "/"
     return chemin.split("/")[-1]
 
-
-def ajouter_fichier_a_liste_attente():
+def ajouter_fichier_a_liste_attente(canva_depos, labe_vide, frame_depos):
     """
     Ouvre une fenetre de recherche de fichier pdf
     Ajoute un fichier à la liste d'attente
@@ -159,69 +160,10 @@ def ajouter_fichier_a_liste_attente():
 
     if len(chemin) != 0:
         lst_fichiers.append(chemin)
-        ajouter_un_label(nom_fichier(chemin), len(lst_fichiers))
+        ajouter_un_label(nom_fichier(chemin), len(lst_fichiers), labe_vide, frame_depos)
 
         #MAJ taille scrolling
         #https://openclassrooms.com/forum/sujet/taille-d-une-frame-tkinter
         canva_depos.update_idletasks()
         #Ligne à ajouter sinon thinker considere qu'on veut màj la taille avant que le dépos ne soit fait
         canva_depos.configure(scrollregion=canva_depos.bbox("all"))
-
-
-#
-#
-# AFFICHAGE DE L'INTERFACE
-#
-#
-
-fenetre.title(TITRE_FENETRE)
-fenetre.geometry(TAILLE_FENETRE)
-
-# Dans la fenetre
-# Aide utilisateur
-frame_aide = LabelFrame(fenetre, text="Cliquez pour faire apparaitre l'aide", height=25, font=(30))
-frame_aide.pack(fill=BOTH)
-
-# Dans Frame Aide
-label_aide = Label(frame_aide, text= TEXTE_AIDE, justify=LEFT)
-label_aide.pack(side=LEFT)
-label_aide.bind("<Button-1>", cacher_aide)
-
-#cacher l'aide lors de l'apparition de la fenetre
-label_aide.pack_forget()
-frame_aide.bind("<Button-1>", apparaitre_aide)
-
-# Partie depos de fichier et lancement de l'analyse
-frame_analyse = LabelFrame(fenetre, text='Fichiers à analyser', font=(30))
-frame_analyse.pack(pady=20, expand= True, fill= BOTH)
-
-canva_depos = Canvas(frame_analyse)
-canva_depos.configure(scrollregion=canva_depos.bbox("all"))
-canva_depos.pack(expand=True, fill=BOTH)
-
-# Dans Frame depos
-# Creation d'une frame sinon le contenu ne pourra pas etre scrollé
-frame_depos = Frame(canva_depos)
-canva_depos.create_window(canva_depos.winfo_rootx(), canva_depos.winfo_rooty(), anchor='nw', window=frame_depos)
-
-labe_vide = Label(frame_depos, text="Aucun fichiers déposés", padx=20, pady=20)
-labe_vide.pack()
-
-scroll = Scrollbar(canva_depos, orient=HORIZONTAL)
-scroll.pack(side=BOTTOM,fill=X)
-scroll.config(command=canva_depos.xview)
-canva_depos.config(xscrollcommand=scroll.set)
-
-# Dans frameAnalyse
-Button(frame_analyse, text='Analyser').pack(side=RIGHT, padx=5, pady=5)
-
-Button(frame_analyse, text='Déposer un fichier', command=ajouter_fichier_a_liste_attente).pack(side=RIGHT, padx=5, pady=5)
-
-# boutton quitter
-Button(fenetre, text='Quitter', command=fenetre.destroy).pack(side=RIGHT, padx=5, pady=5)
-
-# TODO Pandant le traitement si une signature est au delà de la marge le programme met en pose l'analyse, affiche le
-    #  fichier et demande confirmation
-#  TODO Ajout de la partie sortie/feedback
-
-fenetre.mainloop()
