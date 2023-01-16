@@ -21,10 +21,10 @@ NB_LIGNES_DEPOS = 3
 
 fenetre = Tk()
 lst_fichiers = []
-icone_pdf = tkinter.PhotoImage(file=CHEMIN_ICONE_PDF ).subsample(7, 7)
+icone_pdf = tkinter.PhotoImage(file=CHEMIN_ICONE_PDF).subsample(7, 7)
 # icone random recup sur https://icon-icons.com/fr/
 # TODO voir licence ; subsample a addapter si changement d'icone
-icone_croix = tkinter.PhotoImage(file=CHEMIN_ICONE_CROIX )#idem
+icone_croix = tkinter.PhotoImage(file=CHEMIN_ICONE_CROIX)  # idem
 
 
 def analyserFichiers():
@@ -38,9 +38,9 @@ def apparaitre_aide(event):
     """
     Faire appaaitre l'aide dans la fenetre
     """
-    label_aide=event.widget
+    label_aide = event.widget
 
-    label_aide.winfo_children()[0].pack(side = LEFT)
+    label_aide.winfo_children()[0].pack(side=LEFT)
     label_aide.configure(text="Aide")
 
 
@@ -61,7 +61,7 @@ def sortie_souris_frame(event):
     event.widget.winfo_children()[1].winfo_children()[0].destroy()
 
 
-def click_souris_sur_image(event):
+def click_souris_sur_image(event, label_vide):
     """
     Supprimer un fichier de la liste d'attente et retire l'affichage du fichier de l'interface
     """
@@ -71,42 +71,43 @@ def click_souris_sur_image(event):
 
     numero_colonne = 0
     numero_fichier_dans_colonne = 0
-    for colonne in  frame_depos.winfo_children():
+    for colonne in frame_depos.winfo_children():
         numero_colonne += 1
-        if colonne == colonne_depos :
-            for fichier in colonne.winfo_children() :
+        if colonne == colonne_depos:
+            for fichier in colonne.winfo_children():
                 numero_fichier_dans_colonne += 1
-                if fichier == frame_fichier :
+                if fichier == frame_fichier:
                     break
             break
-    numero_fichier = numero_colonne*NB_LIGNES_DEPOS - (NB_LIGNES_DEPOS-numero_fichier_dans_colonne)
+    numero_fichier = numero_colonne * NB_LIGNES_DEPOS - (NB_LIGNES_DEPOS - numero_fichier_dans_colonne)
 
-    #supprimer le fichier dans lst fichier
+    # supprimer le fichier dans lst fichier
     lst_fichiers.pop(numero_fichier - 1)
-    #supprimer les affichages
-    for colonne in frame_depos.winfo_children() :
+    # supprimer les affichages
+    for colonne in frame_depos.winfo_children():
         colonne.destroy()
-    #refaire tout les affichages
+    # refaire tout les affichages
     cpt = 1
-    for chemin in lst_fichiers :
-        ajouter_un_label(nom_fichier(chemin),cpt)
+    for chemin in lst_fichiers:
+        ajouter_un_label(nom_fichier(chemin), cpt, label_vide, frame_depos)
         cpt += 1
-def passage_souris_sur_frame(event):
+
+
+def passage_souris_sur_frame(event,label_vide):
     """
     Indications au passage de la souris sur une image
     """
-    #label_depos = Label(event, text="cliquer sur l'icone pour supprimer")
-    #ajouter la croix de suppression
+    # label_depos = Label(event, text="cliquer sur l'icone pour supprimer")
+    # ajouter la croix de suppression
     image_label_suppression = ttk.Label(event.widget.winfo_children()[1], image=icone_croix, padding=5)
     image_label_suppression.pack(anchor=NE)
 
+    # ajout des evenements surlabel supression
+    image_label_suppression.bind("<Button-1>", lambda eff: click_souris_sur_image(eff, label_vide))
 
-    #ajout des evenements surlabel supression
-    image_label_suppression.bind("<Button-1>", click_souris_sur_image)
 
-
-def ajouter_un_label(nom, index_nom, labe_vide, frame_depos) :
-    #TODO si aucun fichier replacer label vide
+def ajouter_un_label(nom, index_nom, label_vide, frame_depos):
+    # TODO si aucun fichier replacer label vide
     """
     Afficher le nom d'un fichier et l'iconne de pdf à l'écran
     -----Variables-----
@@ -115,19 +116,14 @@ def ajouter_un_label(nom, index_nom, labe_vide, frame_depos) :
         ligne : int
                 index du nom dans la liste des fichiers (pas tout fait mais vus que c'est le dernier elem de la liste ça passe)
     """
-    #détruire l'indication 'aucun fichier déposé'
-    if len(lst_fichiers) != 0:
-        labe_vide.destroy()
+    # détruire l'indication 'aucun fichier déposé'
+    detruire_label_vide(label_vide)
 
     # créer une frame la précedente est remplie sinon recup la derniere frame de frame depos
-    if index_nom%NB_LIGNES_DEPOS == 1 or NB_LIGNES_DEPOS == 1:
-        frame = Frame(frame_depos, border=False)
-    else:
-        frame = frame_depos.winfo_children()[-1]#recupère le dernier enfant
+    frame = recuperer_frame_de_depos(index_nom,frame_depos)
+    frame.pack(expand=True, fill=BOTH, side=LEFT, padx=5, pady=5)
 
-    frame.pack(expand=True, fill=BOTH, side=LEFT,padx=5, pady=5)
-
-    #jout dans la Frame récupérée
+    # jout dans la Frame récupérée
     frame_fichier = Frame(frame)
     label_depos = Label(frame_fichier, text=nom)
     label_depos.pack(side=BOTTOM)
@@ -136,9 +132,23 @@ def ajouter_un_label(nom, index_nom, labe_vide, frame_depos) :
     image_label.propagate(False)
     frame_fichier.pack()
 
-    #ajout des evenements sur frame_fichier
-    frame_fichier.bind("<Enter>", passage_souris_sur_frame)
+    # ajout des evenements sur frame_fichier
+    #frame_fichier.bind("<Enter>", passage_souris_sur_frame(label_vide))
+    frame_fichier.bind("<Enter>", lambda eff: passage_souris_sur_frame(eff, label_vide))
     frame_fichier.bind("<Leave>", sortie_souris_frame)
+
+def detruire_label_vide(label_vide):
+    if len(lst_fichiers) != 0:
+        label_vide.destroy()
+
+def recuperer_frame_de_depos(index_nom,frame_depos):
+    if index_nom % NB_LIGNES_DEPOS == 1 or NB_LIGNES_DEPOS == 1:
+        return Frame(frame_depos, border=False)
+    else:
+        return frame_depos.winfo_children()[-1]  # recupère le dernier enfant
+
+
+
 
 def nom_fichier(chemin):
     """
@@ -146,24 +156,24 @@ def nom_fichier(chemin):
     :param chemin: (str) le chemin vers un fichier
     :return: (str) le nom du fichier
     """
-    #separateur = "\\" if system() == "Windows" else "/"
     return chemin.split("/")[-1]
 
-def ajouter_fichier_a_liste_attente(canva_depos, labe_vide, frame_depos):
+
+def ajouter_fichier_a_liste_attente(canva_depos, label_vide, frame_depos):
     """
     Ouvre une fenetre de recherche de fichier pdf
     Ajoute un fichier à la liste d'attente
     Ajoute l'icone d'un pdf et le chemin du fichier ajouté
     """
     canva_depos.configure(scrollregion=canva_depos.bbox("all"))
-    chemin = askopenfilename(title="Ouvrir une image", filetypes= TYPES_FICHIERS)
+    chemin = askopenfilename(title="Ouvrir une image", filetypes=TYPES_FICHIERS)
 
     if len(chemin) != 0:
         lst_fichiers.append(chemin)
-        ajouter_un_label(nom_fichier(chemin), len(lst_fichiers), labe_vide, frame_depos)
+        ajouter_un_label(nom_fichier(chemin), len(lst_fichiers), label_vide, frame_depos)
 
-        #MAJ taille scrolling
-        #https://openclassrooms.com/forum/sujet/taille-d-une-frame-tkinter
+        # MAJ taille scrolling
+        # https://openclassrooms.com/forum/sujet/taille-d-une-frame-tkinter
         canva_depos.update_idletasks()
-        #Ligne à ajouter sinon thinker considere qu'on veut màj la taille avant que le dépos ne soit fait
+        # Ligne à ajouter sinon thinker considere qu'on veut màj la taille avant que le dépos ne soit fait
         canva_depos.configure(scrollregion=canva_depos.bbox("all"))
