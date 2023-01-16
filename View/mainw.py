@@ -4,6 +4,7 @@ import os
 from tkinter import *
 from tkinter.filedialog import *
 from tkinter import ttk
+
 from platform import system
 
 current_dir = os.getcwd()
@@ -38,7 +39,6 @@ def apparaitre_aide(event):
 
     label_aide.winfo_children()[0].pack(side = LEFT)
     label_aide.configure(text="Aide")
-    label_aide.unbind("<Button-1>")
 
 
 def cacher_aide(event):
@@ -49,8 +49,6 @@ def cacher_aide(event):
 
     event.widget.pack_forget()
     label_aide.configure(text="Cliquez pour faire apparaitre l'aide", height=25)
-    label_aide.bind("<Button-1>", apparaitre_aide)
-
 
 
 def sortie_souris_frame(event):
@@ -165,31 +163,35 @@ def ajouter_fichier_a_liste_attente():
 
         #MAJ taille scrolling
         #https://openclassrooms.com/forum/sujet/taille-d-une-frame-tkinter
-        canva_depos.update_idletasks()#Ligne à ajouter sinon thinker considere qu'on veut màj la taille avant que le dépos ne soit fait (ce qui est faux il est fait et affiché au dessus)
+        canva_depos.update_idletasks()
+        #Ligne à ajouter sinon thinker considere qu'on veut màj la taille avant que le dépos ne soit fait
         canva_depos.configure(scrollregion=canva_depos.bbox("all"))
 
 
 #
 #
-#AFFICHAGE DE L'INTERFACE
+# AFFICHAGE DE L'INTERFACE
 #
 #
 
 fenetre.title(TITRE_FENETRE)
 fenetre.geometry(TAILLE_FENETRE)
 
-#Dans la fenetre
-#Aide utilisateur
-frame_aide = LabelFrame(fenetre, text='Aide', font=(30))
+# Dans la fenetre
+# Aide utilisateur
+frame_aide = LabelFrame(fenetre, text="Cliquez pour faire apparaitre l'aide", height=25, font=(30))
 frame_aide.pack(fill=BOTH)
 
-#Dans Frame Aide
+# Dans Frame Aide
 label_aide = Label(frame_aide, text= TEXTE_AIDE, justify=LEFT)
 label_aide.pack(side=LEFT)
-
 label_aide.bind("<Button-1>", cacher_aide)
 
-#Partie depos de fichier et lancement de l'analyse
+#cacher l'aide lors de l'apparition de la fenetre
+label_aide.pack_forget()
+frame_aide.bind("<Button-1>", apparaitre_aide)
+
+# Partie depos de fichier et lancement de l'analyse
 frame_analyse = LabelFrame(fenetre, text='Fichiers à analyser', font=(30))
 frame_analyse.pack(pady=20, expand= True, fill= BOTH)
 
@@ -197,8 +199,8 @@ canva_depos = Canvas(frame_analyse)
 canva_depos.configure(scrollregion=canva_depos.bbox("all"))
 canva_depos.pack(expand=True, fill=BOTH)
 
-#Dans Frame depos
-#Creation d'une frame sinon le contenu ne pourra pas etre scrollé
+# Dans Frame depos
+# Creation d'une frame sinon le contenu ne pourra pas etre scrollé
 frame_depos = Frame(canva_depos)
 canva_depos.create_window(canva_depos.winfo_rootx(), canva_depos.winfo_rooty(), anchor='nw', window=frame_depos)
 
@@ -210,15 +212,16 @@ scroll.pack(side=BOTTOM,fill=X)
 scroll.config(command=canva_depos.xview)
 canva_depos.config(xscrollcommand=scroll.set)
 
-#Dans frameAnalyse
+# Dans frameAnalyse
 Button(frame_analyse, text='Analyser').pack(side=RIGHT, padx=5, pady=5)
 
 Button(frame_analyse, text='Déposer un fichier', command=ajouter_fichier_a_liste_attente).pack(side=RIGHT, padx=5, pady=5)
 
-#boutton quitter
+# boutton quitter
 Button(fenetre, text='Quitter', command=fenetre.destroy).pack(side=RIGHT, padx=5, pady=5)
 
-#TODO Pandant le traitement si une signature est au delà de la marge le programme met en pose l'analyse, affiche le fichier et demande confirmation
-#TODO Ajout de la partie sortie/feedback
+# TODO Pandant le traitement si une signature est au delà de la marge le programme met en pose l'analyse, affiche le
+    #  fichier et demande confirmation
+#  TODO Ajout de la partie sortie/feedback
 
 fenetre.mainloop()
