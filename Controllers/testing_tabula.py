@@ -4,7 +4,6 @@ from tabula import read_pdf_with_template
 from pdf2image import convert_from_path
 from PIL import Image, ImageEnhance
 import numpy as np
-import pandas as pd
 
 current_dir = os.getcwd()
 sep = os.path.sep
@@ -68,3 +67,5 @@ def check_presence(file, json_file_name):
 
 # testing function
 check_presence('fdp3.pdf', "test")
+
+#############################################################################################################

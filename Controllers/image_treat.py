@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import os
+from pip import main
 
 current_dir = os.getcwd()
 
@@ -77,3 +78,5 @@ def cheking_absences(file):
 
 # cheking_absences(f'{current_dir}\\models\\out.jpg')
 cheking_absences(f'{current_dir}\\models\\trated.pdf')
+
+#############################################################################################################

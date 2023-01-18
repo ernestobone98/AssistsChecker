@@ -14,8 +14,8 @@ TEXTE_AIDE = 'Cliquez sur \'Déposer un fichier\' pour ajouter un fichier à la 
              'liste d\'attente.\nCliquez sur \'Analiser\' pour Commencer l\'analise des fichiers déposés dans la ' \
              'liste d\'attente.\nCliquez n\'importe ou sur le texte de l\'aide pour la cacher ou la faire apparaitre'
 TAILLE_FENETRE = "700x650"
-CHEMIN_ICONE_PDF = f'{current_dir}{sep}Models{sep}icone_pdf.png'
-CHEMIN_ICONE_CROIX = f'{current_dir}{sep}Models{sep}croix_cercle.png'
+CHEMIN_ICONE_PDF = f'{current_dir}{sep}views{sep}img{sep}icone_pdf.png'
+CHEMIN_ICONE_CROIX = f'{current_dir}{sep}views{sep}img{sep}croix_cercle.png'
 TYPES_FICHIERS = [('pdf files', '.pdf')]
 NB_LIGNES_DEPOS = 3
 
