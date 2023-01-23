@@ -3,8 +3,11 @@ import os
 import tkinter
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox as MessageBox
 from tkinter.filedialog import askopenfilename
 from miagepackage.testing_tabula import check_presence
+from miagepackage.testing_tabula import preprocessing
+from miagepackage.handw_ext import get_header
 
 current_dir = os.getcwd()
 sep = os.path.sep
@@ -33,8 +36,12 @@ def analyserFichiers():
     Fonction qui lance l'analyse de chaque fichiers dans la liste d'attente
     """
     for fichier in lst_fichiers:
-        check_presence(nom_fichier(fichier), "nom_du_fichier")  # TODO remplacer par le nom des fichiers
-    print(lst_fichiers)
+        nom_du_fichier = nom_fichier(fichier)[:-4]
+        preprocessing(fichier, nom_du_fichier)
+        nom_du_fichier_json = get_header(nom_du_fichier + '.jpg')
+        check_presence(nom_du_fichier + '.pdf', nom_du_fichier_json)
+    
+    MessageBox.showinfo("Analyse terminée", "L'analyse des fichiers a été terminée")
 
 
 def apparaitre_aide(event):
