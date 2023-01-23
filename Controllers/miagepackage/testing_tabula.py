@@ -40,14 +40,14 @@ def preprocessing(file, image_name):
     image = enhancer.enhance(1.5)
 
     # crop the image at the middle
-    image = image.crop((0, 1000, 3860, 2100))
+    image = image.crop((0, 1120, 3860, 1850))
 
     # save the image as pdf
     image.save(f'{current_dir}\\Models\\{image_name}.jpg', 'JPEG')
     
 
 
-preprocessing(f'{current_dir}\\Models\\fdp6.pdf', 'fdp6')
+# preprocessing(f'{current_dir}\\Models\\fdp8.pdf', 'fdp8')
 
 # Actually working before preprocessing 
 
@@ -66,9 +66,9 @@ def check_presence(file, json_file_name):
 
     print(df[0])
     # df[0].to_csv(f'{current_dir}{sep}Models{sep}test.csv', index=False)
-    df[0].to_json(f'{current_dir}{sep}Models{sep}{json_file_name}.json', orient='records')
+    # df[0].to_json(f'{current_dir}{sep}Models{sep}{json_file_name}.json', orient='records')
 
 # testing function
-# check_presence('fdp3.pdf', "test")
+check_presence('fdp7.pdf', "test8")
 
 #############################################################################################################
