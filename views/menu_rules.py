@@ -4,6 +4,7 @@ import tkinter
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
+from miagepackage.testing_tabula import check_presence
 
 current_dir = os.getcwd()
 sep = os.path.sep
@@ -31,6 +32,8 @@ def analyserFichiers():
     """
     Fonction qui lance l'analyse de chaque fichiers dans la liste d'attente
     """
+    for fichier in lst_fichiers:
+        check_presence(nom_fichier(fichier), "nom_du_fichier")  # TODO remplacer par le nom des fichiers
     print(lst_fichiers)
 
 

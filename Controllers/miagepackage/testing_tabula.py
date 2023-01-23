@@ -9,7 +9,7 @@ current_dir = os.getcwd()
 sep = os.path.sep
 
 # OCR improvement - Image processing (Only works on Windows)
-def preprocessing(file):
+def preprocessing(file, image_name):
 
     if os.path.splitext(file)[1] == '.pdf':
         # converting pdf to image
@@ -39,12 +39,15 @@ def preprocessing(file):
     enhancer = ImageEnhance.Brightness(image)
     image = enhancer.enhance(1.5)
 
+    # crop the image at the middle
+    image = image.crop((0, 1000, 3860, 2100))
+
     # save the image as pdf
-    image.save(f'{current_dir}\\Models\\trated.pdf', 'PDF')
+    image.save(f'{current_dir}\\Models\\{image_name}.jpg', 'JPEG')
     
 
 
-# preprocessing(f'{current_dir}\\Models\\fdp3.pdf')
+preprocessing(f'{current_dir}\\Models\\fdp6.pdf', 'fdp6')
 
 # Actually working before preprocessing 
 
@@ -66,6 +69,6 @@ def check_presence(file, json_file_name):
     df[0].to_json(f'{current_dir}{sep}Models{sep}{json_file_name}.json', orient='records')
 
 # testing function
-check_presence('fdp3.pdf', "test")
+# check_presence('fdp3.pdf', "test")
 
 #############################################################################################################
