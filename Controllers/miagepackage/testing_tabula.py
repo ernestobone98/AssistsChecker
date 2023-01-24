@@ -36,19 +36,20 @@ def preprocessing(file, image_name):
     enhancer = ImageEnhance.Brightness(image)
     image = enhancer.enhance(1.5)
 
-    image = image.crop((0, 1120, 3860, 1850))
+    image = image.crop((0, 1200, 3860, 2000))
 
     # save the image as pdf
     image.save(f'{current_dir}{sep}Models{sep}{image_name}.jpg', 'JPEG')
     
 
+preprocessing(f'{current_dir}{sep}Models{sep}fdp14.pdf', 'fdp14')
 
 #  ------------- Main function Definition ----------------
 
 def check_presence(file, json_file_name):
 
     df = read_pdf(f'{current_dir}{sep}Models{sep}{file}', pages="all", encoding='utf-8', multiple_tables=False)
-    print("Liste des etudiants \n")
+    print("---------- DEBUG ---------- 1st file \n")
 
     df[0]["Emargement"] = df[0]["Emargement"].replace(r'.+', 'present', regex=True)
     df[0]["Emargement"] = df[0]["Emargement"].replace(np.nan, 'absent', regex=True)

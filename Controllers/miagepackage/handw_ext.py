@@ -21,14 +21,30 @@ def get_header(img):
 
     image = vision.Image(content=content)
     response = client.document_text_detection(image=image)
-    document = response.full_text_annotation.text
+    file_name = response.full_text_annotation.text
     
-    # where document is a string, i.e. document = "Nom : BUFFA \nPrénom : Michel \nUE ou ECUE: Angular \nDate / salle : 22/01/2023 \n357"
-    # we want to return file_name = "Angular_BUFFA_Michel_22_01_2023_357"
-    # we split the string into a list of strings, i.e. document = ["Nom : BUFFA ", "Prénom : Michel ", "UE ou ECUE: Angular ", "Date / salle : 22/01/2023 ", "357"]
-    document = document.split("\n")
-    # extract charracters after ": " in each string, i.e. document = ["BUFFA", "Michel", "Angular", "22/01/2023", "357"]
-    document = [x.split(": ")[1] for x in document[:-1]]
-    file_name = document[2] + "_" + document[0] + "_" + document[1] + "_" + document[3].replace("/", "_")
-    #\n + "_" + document[4]
+    # ----------------- Data cleaning -----------------
+
+    # file_name = "Nom : BOURGEOIS\nPrénom : Théo\nUE ou ECUE : MIAGE\nDate : 14/01/2021\nSalle : 357"
+
+    file_name = file_name.replace("\n", " ")
+    file_name = file_name.replace("/", "_")
+
+    file_name = file_name.split(" ")
+    # for all the elements in the list, delete all ":" and "Nom", "Prénom", "UE ou ECUE", "Date", "Salle"
+    for i in range(len(file_name)):
+        file_name[i] = file_name[i].replace(":", "")
+        file_name[i] = file_name[i].replace("Nom", "")
+        file_name[i] = file_name[i].replace("Prénom", "")
+        file_name[i] = file_name[i].replace("UE", "")
+        file_name[i] = file_name[i].replace("ou", "")
+        file_name[i] = file_name[i].replace("EC", "")
+        file_name[i] = file_name[i].replace("Date", "")
+        file_name[i] = file_name[i].replace("Salle", "")
+        
+    # delete all the empty elements in the list
+    file_name = list(filter(None, file_name))
+
+    #create a string with all the elements of the list separated by a "_"
+    file_name = "_".join(file_name)
     return file_name
