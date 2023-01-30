@@ -3,6 +3,8 @@ from menu_rules import *
 
 fenetre.title(TITRE_FENETRE)
 fenetre.geometry(TAILLE_FENETRE)
+photo = PhotoImage(file=APP_ICON)
+fenetre.iconphoto(False, photo)
 
 # Dans la fenetre
 # Aide utilisateur
@@ -31,8 +33,8 @@ canva_depos.pack(expand=True, fill=BOTH)
 frame_depos = Frame(canva_depos)
 canva_depos.create_window(canva_depos.winfo_rootx(), canva_depos.winfo_rooty(), anchor='nw', window=frame_depos)
 
-labe_vide = Label(frame_depos, text="Aucun fichiers déposés", padx=20, pady=20)
-labe_vide.pack()
+label_vide = Label(frame_depos, text="Aucun fichiers déposés", padx=20, pady=20)
+label_vide.pack()
 
 scroll = Scrollbar(canva_depos, orient=HORIZONTAL)
 scroll.pack(side=BOTTOM, fill=X)
@@ -42,11 +44,14 @@ canva_depos.config(xscrollcommand=scroll.set)
 # Dans frameAnalyse
 Button(frame_analyse, text='Analyser', command=analyserFichiers).pack(side=RIGHT, padx=5, pady=5)
 
-Button(frame_analyse, text='Déposer un fichier', command=lambda: ajouter_fichier_a_liste_attente(canva_depos, labe_vide, frame_depos)).pack(
+Button(frame_analyse, text='Déposer un fichier', command=lambda: ajouter_fichier_a_liste_attente(canva_depos, label_vide, frame_depos)).pack(
     side=RIGHT, padx=5, pady=5)
 
 # boutton quitter
 Button(fenetre, text='Quitter', command=fenetre.destroy).pack(side=RIGHT, padx=5, pady=5)
+
+canva_depos.drop_target_register(DND_FILES)
+canva_depos.dnd_bind('<<Drop>>', lambda event : drop(event,label_vide, frame_depos))
 
 # TODO Pandant le traitement si une signature est au delà de la marge le programme met en pose l'analyse, affiche le
 #  fichier et demande confirmation

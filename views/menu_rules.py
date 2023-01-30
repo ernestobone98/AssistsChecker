@@ -1,13 +1,15 @@
 # coding: utf-8
 import os
 import tkinter
+import tkinter.filedialog as fd
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox as MessageBox
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilenames
+from tkinterdnd2 import DND_FILES, TkinterDnD
 from miagepackage.testing_tabula import check_presence
 from miagepackage.testing_tabula import preprocessing
-from miagepackage.handw_ext import get_header
+from miagepackage.handw_ext import trating_text
 
 current_dir = os.getcwd()
 sep = os.path.sep
@@ -22,8 +24,9 @@ CHEMIN_ICONE_PDF = f'{current_dir}{sep}views{sep}img{sep}icone_pdf.png'
 CHEMIN_ICONE_CROIX = f'{current_dir}{sep}views{sep}img{sep}croix_cercle.png'
 TYPES_FICHIERS = [('pdf files', '.pdf')]
 NB_LIGNES_DEPOS = 3
+APP_ICON = f'{current_dir}{sep}views{sep}img{sep}logo.png'
 
-fenetre = Tk()
+fenetre = TkinterDnD.Tk()
 lst_fichiers = []
 icone_pdf = tkinter.PhotoImage(file=CHEMIN_ICONE_PDF).subsample(7, 7)
 # icone random recup sur https://icon-icons.com/fr/
@@ -38,15 +41,17 @@ def analyserFichiers():
     for fichier in lst_fichiers:
         nom_du_fichier = nom_fichier(fichier)[:-4]
         preprocessing(fichier, nom_du_fichier)
-        nom_du_fichier_json = get_header(nom_du_fichier + '.jpg')
-        check_presence(nom_du_fichier + '.pdf', nom_du_fichier_json)
+        file_info = trating_text(nom_du_fichier + '.jpg')
+        nom_du_fichier_json = file_info[-1]
+        path = file_info[0] + sep + file_info[1] + sep + file_info[2] + sep + file_info[3] + sep + file_info[4] + sep
+        check_presence(nom_du_fichier + '.pdf', nom_du_fichier_json, path)
     
     MessageBox.showinfo("Analyse terminée", "L'analyse des fichiers a été terminée")
 
 
 def apparaitre_aide(event):
     """
-    Faire appaaitre l'aide dans la fenetre
+    Faire apparaitre l'aide dans la fenetre
     """
     label_aide = event.widget
 
@@ -158,8 +163,6 @@ def recuperer_frame_de_depos(index_nom,frame_depos):
         return frame_depos.winfo_children()[-1]  # recupère le dernier enfant
 
 
-
-
 def nom_fichier(chemin):
     """
     Donne le nom d'un fichier a partir de son chemin
@@ -168,6 +171,14 @@ def nom_fichier(chemin):
     """
     return chemin.split("/")[-1]
 
+def drop(event, label_vide, frame_depos):
+    file_path = event.data
+    if not file_path.endswith(".pdf"):
+        MessageBox.showerror("Erreur", "Le fichier n'est pas au format pdf")
+    else:
+        lst_fichiers.append(file_path)
+        ajouter_un_label(nom_fichier(file_path), len(lst_fichiers), label_vide, frame_depos)
+    
 
 def ajouter_fichier_a_liste_attente(canva_depos, label_vide, frame_depos):
     """
@@ -175,15 +186,17 @@ def ajouter_fichier_a_liste_attente(canva_depos, label_vide, frame_depos):
     Ajoute un fichier à la liste d'attente
     Ajoute l'icone d'un pdf et le chemin du fichier ajouté
     """
+
     canva_depos.configure(scrollregion=canva_depos.bbox("all"))
-    chemin = askopenfilename(title="Ouvrir une image", filetypes=TYPES_FICHIERS)
+    chemins = askopenfilenames(title="Ouvrir une image", filetypes=TYPES_FICHIERS)
 
-    if len(chemin) != 0:
-        lst_fichiers.append(chemin)
-        ajouter_un_label(nom_fichier(chemin), len(lst_fichiers), label_vide, frame_depos)
+    for chemin in chemins:
+        if len(chemin) != 0:
+            lst_fichiers.append(chemin)
+            ajouter_un_label(nom_fichier(chemin), len(lst_fichiers), label_vide, frame_depos)
 
-        # MAJ taille scrolling
-        # https://openclassrooms.com/forum/sujet/taille-d-une-frame-tkinter
-        canva_depos.update_idletasks()
-        # Ligne à ajouter sinon thinker considere qu'on veut màj la taille avant que le dépos ne soit fait
-        canva_depos.configure(scrollregion=canva_depos.bbox("all"))
+            # MAJ taille scrolling
+            # https://openclassrooms.com/forum/sujet/taille-d-une-frame-tkinter
+            canva_depos.update_idletasks()
+            # Ligne à ajouter sinon thinker considere qu'on veut màj la taille avant que le dépos ne soit fait
+            canva_depos.configure(scrollregion=canva_depos.bbox("all"))

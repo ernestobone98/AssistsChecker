@@ -1,17 +1,17 @@
 import os, io
 from google.cloud import vision
 
-def get_header(img):
+current_dir = os.getcwd()
+sep = os.sep
+FOLDER_PATH = f'{current_dir}{sep}models{sep}'
 
-    current_dir = os.getcwd()
-    sep = os.sep
+def get_header(img):
 
     # Using Google Vision API, we can extract handwritten text from the image
 
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = f'{current_dir}{sep}controllers{sep}miagepackage{sep}application_default_credentials.json'
     client = vision.ImageAnnotatorClient()
 
-    FOLDER_PATH = f'{current_dir}{sep}models{sep}'
     IMG = img
 
     FILE_PATH = FOLDER_PATH + IMG
@@ -21,30 +21,65 @@ def get_header(img):
 
     image = vision.Image(content=content)
     response = client.document_text_detection(image=image)
-    file_name = response.full_text_annotation.text
-    
-    # ----------------- Data cleaning -----------------
+    document = response.full_text_annotation.text
 
-    # file_name = "Nom : BOURGEOIS\nPrénom : Théo\nUE ou ECUE : MIAGE\nDate : 14/01/2021\nSalle : 357"
+    return document
 
-    file_name = file_name.replace("\n", " ")
-    file_name = file_name.replace("/", "_")
+def trating_text(img):
 
-    file_name = file_name.split(" ")
-    # for all the elements in the list, delete all ":" and "Nom", "Prénom", "UE ou ECUE", "Date", "Salle"
-    for i in range(len(file_name)):
-        file_name[i] = file_name[i].replace(":", "")
-        file_name[i] = file_name[i].replace("Nom", "")
-        file_name[i] = file_name[i].replace("Prénom", "")
-        file_name[i] = file_name[i].replace("UE", "")
-        file_name[i] = file_name[i].replace("ou", "")
-        file_name[i] = file_name[i].replace("EC", "")
-        file_name[i] = file_name[i].replace("Date", "")
-        file_name[i] = file_name[i].replace("Salle", "")
+    Global_name = "Archive des FDP"     # Name of the folder where the pdf will be stored
+
+    # ---------------------- Extracting Promotion and Group from the pdf name ----------------------
+
+    file_name = get_header(img)
+
+    # ------------- cleaning the file_name variable -------------
+    a_retirer = ["Nom:", "Nom :", "Prénom:", "Prénom :", "UE ou ECUE:", "UE ou ECUE :", "Date:", "Date :", "Salle:", "Salle :","«", "»", "<<", ">>"]
+    for e in a_retirer:
+        file_name = file_name.replace(e,"")
+
+    lignes = file_name.split("\n")
+    lignes = [l for l in lignes if l != '']
+    lignes = [ligne.strip(" ") for ligne in lignes]
         
-    # delete all the empty elements in the list
-    file_name = list(filter(None, file_name))
+    lignes = list(filter(None, lignes))
 
-    #create a string with all the elements of the list separated by a "_"
-    file_name = "_".join(file_name)
-    return file_name
+    classe_name =  lignes[0] # EX : "CM-M1 MIAGE"
+    promo_name =  lignes[1].replace("/", "_") # EX : "PROMOTION Marvin Lee Minski 2021/2024"
+    lignes[1] = promo_name
+    prof_name = lignes[2] + " " + lignes[3] # EX : "Donati Leo"
+    lignes[2] = prof_name
+    UE_ECUE_name = lignes[4] # Ex : "TERD"
+    lignes[5] = lignes[5].replace("/", "_") + "_" + lignes[6] # Ex : "10_01_23_TD7"
+    lignes.pop(3)
+    lignes.pop(5)
+    lignes.insert(0, Global_name)
+
+    # ------------------- Folders creation : Gobal_name/classe_name/promo_name/prof_name/UE_ECUE_name/DATE_salle_name -------------------
+
+    if not os.path.exists(Global_name):
+        os.makedirs(Global_name)
+    os.chdir(Global_name)
+
+
+    if not os.path.exists(classe_name):
+        os.makedirs(classe_name)
+    os.chdir(classe_name)
+
+
+    if not os.path.exists(promo_name):
+        os.makedirs(promo_name)
+    os.chdir(promo_name)
+
+
+    if not os.path.exists(prof_name):
+        os.makedirs(prof_name)
+    os.chdir(prof_name)
+
+
+    if not os.path.exists(UE_ECUE_name):
+        os.makedirs(UE_ECUE_name)
+    os.chdir(UE_ECUE_name)
+    os.chdir(current_dir)
+
+    return lignes
