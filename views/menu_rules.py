@@ -38,15 +38,18 @@ def analyserFichiers():
     """
     Fonction qui lance l'analyse de chaque fichiers dans la liste d'attente
     """
-    for fichier in lst_fichiers:
-        nom_du_fichier = nom_fichier(fichier)[:-4]
-        preprocessing(fichier, nom_du_fichier)
-        file_info = trating_text(nom_du_fichier + '.jpg')
-        nom_du_fichier_json = file_info[-1]
-        path = file_info[0] + sep + file_info[1] + sep + file_info[2] + sep + file_info[3] + sep + file_info[4] + sep
-        check_presence(nom_du_fichier + '.pdf', nom_du_fichier_json, path)
-    
-    MessageBox.showinfo("Analyse terminée", "L'analyse des fichiers a été terminée")
+    if(len(lst_fichiers) == 0):
+        MessageBox.showinfo("Aucun fichier", "Veuillez déposer au moins un fichier")
+    else:
+        for fichier in lst_fichiers:
+            nom_du_fichier = nom_fichier(fichier)[:-4]
+            preprocessing(fichier, nom_du_fichier)
+            file_info = trating_text(nom_du_fichier + '.jpg')
+            nom_du_fichier_json = file_info[-1]
+            path = file_info[0] + sep + file_info[1] + sep + file_info[2] + sep + file_info[3] + sep + file_info[4] + sep
+            check_presence(nom_du_fichier + '.pdf', nom_du_fichier_json, path)
+        
+        MessageBox.showinfo("Analyse terminée", "L'analyse des fichiers a été terminée")
 
 
 def apparaitre_aide(event):
@@ -172,12 +175,15 @@ def nom_fichier(chemin):
     return chemin.split("/")[-1]
 
 def drop(event, label_vide, frame_depos):
-    file_path = event.data
-    if not file_path.endswith(".pdf"):
-        MessageBox.showerror("Erreur", "Le fichier n'est pas au format pdf")
-    else:
-        lst_fichiers.append(file_path)
-        ajouter_un_label(nom_fichier(file_path), len(lst_fichiers), label_vide, frame_depos)
+    file_paths = event.data.split(" ")
+    print(event.data)
+    for file_path in file_paths:
+        if not file_path.endswith(".pdf"):
+            MessageBox.showerror("Erreur", "Un ou plusieurs fichiers ne sont pas au format pdf")
+            break
+        else:
+            lst_fichiers.append(file_path)
+            ajouter_un_label(nom_fichier(file_path), len(lst_fichiers), label_vide, frame_depos)
     
 
 def ajouter_fichier_a_liste_attente(canva_depos, label_vide, frame_depos):

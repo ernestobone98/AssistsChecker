@@ -1,0 +1,11 @@
+# list of used librairies
+tabula
+pdf2image
+Pillow
+numpy
+tkinterdnd2
+google-cloud
+google-cloud-vision
+google
+oauth2client
+tk
